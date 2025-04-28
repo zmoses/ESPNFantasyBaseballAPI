@@ -15,6 +15,7 @@ module ESPNApi
     end
 
     def self.test_init
+      # TODO: Delete me after getthing things generalls working, not needed but makes testing through irb a bit easier
       self.new(auth_key: ENV["ESPN_KEY"], league_id: ENV["LEAGUE_ID"])
     end
 
