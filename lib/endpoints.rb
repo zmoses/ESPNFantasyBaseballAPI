@@ -1,5 +1,5 @@
-require_relative "endpoints/rosters"
+require_relative "endpoints/leagues"
 
 module Endpoints
-  include Rosters
+  include Leagues
 end
