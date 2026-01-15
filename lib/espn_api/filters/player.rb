@@ -28,6 +28,14 @@ module ESPNApi
         outfield: 19
       }.freeze
 
+      def initialize
+        super
+
+        # Default settings
+        limit(50)
+        sort_by_draft_rank
+      end
+
       def status(*statuses)
         values = statuses.map { |s| STATUS_VALUES[s] || s.to_s.upcase }
         add_filter(:filterStatus, { value: values })
