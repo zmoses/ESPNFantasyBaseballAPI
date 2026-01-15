@@ -19,7 +19,7 @@ module Leagues
     headers = { "x-fantasy-filter" => player_filters.to_json }
     params = { view: "kona_player_info" }
     params[:scoringPeriodId] = scoring_period_id if scoring_period_id
-    JSON.parse(get(leagues_endpoint, params, headers))
+    JSON.parse(get(leagues_endpoint, params, headers))["players"]
   end
 
   def matchup_scores
