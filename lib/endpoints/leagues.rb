@@ -1,24 +1,32 @@
 module Leagues
-  def team_rosters(team_id = nil)
+  def team_rosters(team_id: nil)
     params = { view: "mRoster" }
     params[:rosterForTeamId] = team_id if team_id
-    response = JSON.parse(get(endpoint, **params))
+    response = JSON.parse(get(leagues_endpoint, params))
 
     team_id ? response["teams"].select{ |team| team["id"] == team_id } : response["teams"]
   end
 
   def draft_details
-    JSON.parse(get(endpoint, view: "mDraftDetail")).slice("draftDetail", "settings")
+    JSON.parse(get(leagues_endpoint, {view: "mDraftDetail"})).slice("draftDetail", "settings")
   end
 
   def current_matchup_info
-    JSON.parse(get(endpoint, view: "mLiveScoring"))["schedule"]
+    JSON.parse(get(leagues_endpoint, {view: "mLiveScoring"}))["schedule"]
+  end
+
+  def player_info(filters: nil, scoring_period_id: nil)
+    filters ||= default_player_filters
+    headers = { "x-fantasy-filter" => filters.to_json }
+    params = { view: "kona_player_info" }
+    params[:scoringPeriodId] = scoring_period_id if scoring_period_id
+    JSON.parse(get(leagues_endpoint, params, headers))
   end
 
   def matchup_scores
     # Returns an array of hashes with the following keys for each matchup period:
     # ["away", "home", "id", "matchupPeriodId", "playoffTierType", "winner"]
-    JSON.parse(get(endpoint,  view: "mMatchupScore"))["schedule"]
+    JSON.parse(get(leagues_endpoint,  {view: "mMatchupScore"}))["schedule"]
   end
 
   def pending_transactions
@@ -60,25 +68,25 @@ module Leagues
     # "teamId"=>1,
     # "type"=>"WAIVER"}
 
-    response = JSON.parse(get(endpoint,  view: "mPendingTransactions"))
+    response = JSON.parse(get(leagues_endpoint,  {view: "mPendingTransactions"}))
 
     response["pendingTransactions"] || []
   end
 
   def league_settings
-    JSON.parse(get(endpoint,  view: "mSettings"))["settings"]
+    JSON.parse(get(leagues_endpoint,  {view: "mSettings"}))["settings"]
   end
 
   def league_team_info
-    JSON.parse(get(endpoint, view: "mTeam")).slice("members", "teams")
+    JSON.parse(get(leagues_endpoint, {view: "mTeam"})).slice("members", "teams")
   end
 
   def modular
-    JSON.parse(get(endpoint, view: "modular"))
+    JSON.parse(get(leagues_endpoint, {view: "modular"}))
   end
 
   def teams_info
-    response = JSON.parse(get(endpoint, view: "mNav"))
+    response = JSON.parse(get(leagues_endpoint, {view: "mNav"}))
     response["teams"].each do |team|
       owners_info = []
       team["owners"].each do |owner_id|
@@ -89,7 +97,7 @@ module Leagues
     response["teams"]
   end
 
-  def league_basic_info(team_id = nil)
+  def league_basic_info(team_id: nil)
     # The following keys are returned in all "views" and are ignored in other responses:
     # gameId, id, scoringPeriodId, seasonId, segmentId
 
@@ -100,18 +108,18 @@ module Leagues
     # The status key is also returned in all views, but is much less detailed without a view specified. TODO: Decide
     # what to do with this key.
 
-    JSON.parse(get(endpoint, rosterForTeamId: team_id))
+    JSON.parse(get(leagues_endpoint, {rosterForTeamId: team_id}))
   end
 
   def bulk_view_request(team_id: nil, views: [])
     params = { view: views }
     params[:rosterForTeamId] = team_id if team_id
-    JSON.parse(get(endpoint, rosterForTeamId: team_id))
+    JSON.parse(get(leagues_endpoint, params))
   end
 
   private
 
-  def endpoint
+  def leagues_endpoint
     "/apis/v3/games/flb/seasons/#{@year}/segments/0/leagues/#{@league_id}"
   end
 end
