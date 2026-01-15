@@ -1,10 +1,10 @@
-require_relative "../endpoints"
+require_relative "endpoints"
 require "net/http"
 require "json"
 
 module ESPNApi
   class Client
-    include Endpoints
+    include ESPNApi::Endpoints
 
     BASE_URL = "https://lm-api-reads.fantasy.espn.com".freeze
 
