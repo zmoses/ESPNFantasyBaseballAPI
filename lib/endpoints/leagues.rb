@@ -15,9 +15,8 @@ module Leagues
     JSON.parse(get(leagues_endpoint, {view: "mLiveScoring"}))["schedule"]
   end
 
-  def player_info(filters: nil, scoring_period_id: nil)
-    filters ||= default_player_filters
-    headers = { "x-fantasy-filter" => filters.to_json }
+  def player_info(player_filters: ESPNApi::Filters::Player.new, scoring_period_id: nil)
+    headers = { "x-fantasy-filter" => player_filters.to_json }
     params = { view: "kona_player_info" }
     params[:scoringPeriodId] = scoring_period_id if scoring_period_id
     JSON.parse(get(leagues_endpoint, params, headers))
