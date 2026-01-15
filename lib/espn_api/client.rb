@@ -1,4 +1,5 @@
 require_relative "endpoints"
+require_relative "filters"
 require "net/http"
 require "json"
 
